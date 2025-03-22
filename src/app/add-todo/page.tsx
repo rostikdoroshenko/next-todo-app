@@ -9,11 +9,7 @@ import { todoActions } from "@/store/todo-slice";
 import classes from "./page.module.css";
 import AddTodoForm from "@/components/add-todo-form/AddTodoForm";
 
-interface Interface {
-  editTodo?: Todo;
-}
-
-const TodoFormPage: React.FC<Interface> = ({ editTodo }) => {
+const TodoFormPage: React.FC = ({ editTodo }: { editTodo?: Todo }) => {
   const [isLoading, setIsLoading] = useState(false);
   const dispatch = useDispatch();
   const editItem = useSelector((state: AppState) => state.editingItem);
