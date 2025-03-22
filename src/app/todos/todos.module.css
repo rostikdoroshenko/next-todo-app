@@ -1,0 +1,19 @@
+.main {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.card {
+  min-width: 400px;
+  min-height: fit-content;
+}
+
+.cards {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+}

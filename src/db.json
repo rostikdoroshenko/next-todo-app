@@ -1,0 +1,24 @@
+{
+  "todos": [
+    {
+      "title": "Learn React",
+      "description": "- props\n- state\n- context\n- useEffect()",
+      "id": "1741085440858"
+    },
+    {
+      "title": "Learn Next.js",
+      "description": "- server components\n- revalidatePath()",
+      "id": "1741269275341"
+    },
+    {
+      "title": "Angular",
+      "description": "- decorators\n- components\n- services",
+      "id": "1741284645473"
+    },
+    {
+      "title": "newTodo",
+      "description": "some steps ...",
+      "id": "1742391404095"
+    }
+  ]
+}
