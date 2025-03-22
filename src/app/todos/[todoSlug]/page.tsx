@@ -22,6 +22,6 @@ const EditTodoPage: React.FC<Props> = async ({ params }) => {
     console.log(e);
   }
 
-  return <TodoFormPage editTodo={editTodo} />;
+  return <TodoFormPage />;
 };
 export default EditTodoPage;

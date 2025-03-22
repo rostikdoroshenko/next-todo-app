@@ -9,23 +9,19 @@ import { todoActions } from "@/store/todo-slice";
 import classes from "./page.module.css";
 import AddTodoForm from "@/components/add-todo-form/AddTodoForm";
 
-interface TodoFormProps {
-  editTodo: Todo | null;
-}
-
-const TodoFormPage: React.FC<TodoFormProps> = ({ editTodo }) => {
+const TodoFormPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const dispatch = useDispatch();
   const editItem = useSelector((state: AppState) => state.editingItem);
 
   useEffect(() => {
-    if (editTodo) {
-      dispatch(todoActions.setEditItem(editTodo));
+    if (editItem) {
+      dispatch(todoActions.setEditItem(editItem));
     }
     return () => {
       dispatch(todoActions.setEditItem(null));
     };
-  }, [dispatch, editTodo]);
+  }, [dispatch, editItem]);
 
   async function addOrEditTodo(todo: TodoForm) {
     setIsLoading(true);
@@ -71,7 +67,7 @@ const TodoFormPage: React.FC<TodoFormProps> = ({ editTodo }) => {
       <main className={classes.main}>
         <AddTodoForm
           isLoading={isLoading}
-          editItem={editTodo || null}
+          editItem={editItem || null}
           onSubmit={(todo) => addOrEditTodo(todo)}
         />
       </main>
