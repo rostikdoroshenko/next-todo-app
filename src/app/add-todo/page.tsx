@@ -1,4 +1,3 @@
-// @ts-nocheck
 "use client";
 
 import React, { useEffect, useState } from "react";
@@ -14,7 +13,7 @@ interface TodoFormProps {
   editTodo: Todo | null;
 }
 
-const TodoFormPage: React.FC<TodoFormProps> = ({ editTodo }: TodoFormProps) => {
+const TodoFormPage: React.FC<TodoFormProps> = ({ editTodo }) => {
   const [isLoading, setIsLoading] = useState(false);
   const dispatch = useDispatch();
   const editItem = useSelector((state: AppState) => state.editingItem);
