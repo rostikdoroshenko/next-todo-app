@@ -5,9 +5,9 @@ import { Todo } from "@/models/todo-model";
 
 export async function DELETE(
   req: Request,
-  { params }: { params: { id: string } },
+  context: { params: { id: string } },
 ) {
-  const { id } = await params;
+  const { id } = context.params;
   const dbPath = path.join(process.cwd(), "src", "db.json");
 
   try {
@@ -22,11 +22,8 @@ export async function DELETE(
   }
 }
 
-export async function PUT(
-  req: Request,
-  { params }: { params: { id: string } },
-) {
-  const { id } = await params;
+export async function PUT(req: Request, context: { params: { id: string } }) {
+  const { id } = context.params;
   const dbPath = path.join(process.cwd(), "src", "db.json");
 
   try {
