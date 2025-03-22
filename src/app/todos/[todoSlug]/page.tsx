@@ -11,13 +11,13 @@ interface Props {
 
 const EditTodoPage: React.FC<Props> = async ({ params }) => {
   let todos: Todo[] = [];
-  let editTodo: Todo | undefined;
+  let editTodo: Todo | null = null;
   let todoSlug: string = "";
 
   try {
     todos = await todoAPIs.fetchTodos();
     todoSlug = (await params).todoSlug;
-    editTodo = todos.find((todo) => todo.id === todoSlug);
+    editTodo = todos.find((todo) => todo.id === todoSlug) || null;
   } catch (e) {
     console.log(e);
   }
