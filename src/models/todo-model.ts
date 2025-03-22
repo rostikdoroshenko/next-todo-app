@@ -6,7 +6,10 @@ export interface Todo {
   id: string;
 }
 
-export type TodoForm = Omit<Todo, "id">;
+export interface TodoForm {
+  title: string;
+  description: string;
+}
 
 export interface AppState {
   isAuth: boolean;
