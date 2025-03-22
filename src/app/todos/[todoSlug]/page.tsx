@@ -4,7 +4,6 @@ import todoAPIs from "@/service/todo-api";
 import { Todo } from "@/models/todo-model";
 
 interface Props {
-  name: string;
   params: Promise<{
     todoSlug: string;
   }>;
