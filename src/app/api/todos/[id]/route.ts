@@ -3,11 +3,10 @@ import fs from "fs";
 import { NextResponse } from "next/server";
 import { Todo } from "@/models/todo-model";
 
-export async function DELETE(
-  req: Request,
-  context: { params: { id: string } },
-) {
-  const { id } = context.params;
+type Params = Promise<{ id: string }>;
+
+export async function DELETE(req: Request, context: { params: Params }) {
+  const { id } = await context.params;
   const dbPath = path.join(process.cwd(), "src", "db.json");
 
   try {
@@ -22,8 +21,8 @@ export async function DELETE(
   }
 }
 
-export async function PUT(req: Request, context: { params: { id: string } }) {
-  const { id } = context.params;
+export async function PUT(req: Request, context: { params: Params }) {
+  const { id } = await context.params;
   const dbPath = path.join(process.cwd(), "src", "db.json");
 
   try {
