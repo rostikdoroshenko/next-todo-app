@@ -4,8 +4,6 @@ import { AlertColor } from "@mui/material";
 
 export const todosInitState: AppState = {
   isAuth: false,
-  items: [],
-  editingItem: null,
   snackBar: {
     isOpen: false,
     severity: "info",
@@ -21,10 +19,6 @@ const todoSlice = createSlice({
       state.isAuth = action.payload;
     },
 
-    addItems(state, action) {
-      state.items = action.payload;
-    },
-
     toggleSnackBar(
       state,
       action: {
@@ -36,37 +30,6 @@ const todoSlice = createSlice({
         state.snackBar.message = action.payload.message;
       if (action.payload.severity)
         state.snackBar.severity = action.payload.severity;
-    },
-
-    setEditItem(state, action) {
-      state.editingItem = action.payload;
-    },
-
-    updateItem(state, action) {
-      const existing = state.items.find(
-        (item) => item.id === action.payload.id,
-      );
-      if (existing) {
-        state.items = state.items.map((item) =>
-          item.id === existing.id ? { ...action.payload } : item,
-        );
-      }
-    },
-
-    addItemToCart(state, action) {
-      const item = action.payload;
-      const existing = state.items.find((i) => i.id === item.id);
-      if (!existing) {
-        state.items.push({ ...item });
-      }
-    },
-
-    removeItemFromCart(state, action) {
-      const id = action.payload;
-      const existing = state.items.find((i) => i.id === id);
-      if (existing) {
-        state.items = state.items.filter((i) => i.id !== id);
-      }
     },
   },
 });

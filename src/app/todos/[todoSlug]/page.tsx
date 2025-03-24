@@ -1,7 +1,8 @@
 import React from "react";
-import TodoFormPage from "@/app/add-todo/page";
 import todoAPIs from "@/service/todo-api";
 import { Todo } from "@/models/todo-model";
+import classes from "@/app/add-todo/page.module.css";
+import AddTodoForm from "@/components/add-todo-form/AddTodoForm";
 
 interface Props {
   params: Promise<{
@@ -22,6 +23,17 @@ const EditTodoPage: React.FC<Props> = async ({ params }) => {
     console.log(e);
   }
 
-  return <TodoFormPage editTodo={editTodo} />;
+  return (
+    <>
+      <header className={classes.header}>
+        <h1>
+          Add your <span className={classes.highlight}>ToDo</span>
+        </h1>
+      </header>
+      <main className={classes.main}>
+        <AddTodoForm editItem={editTodo} id={todoSlug} />
+      </main>
+    </>
+  );
 };
 export default EditTodoPage;

@@ -1,17 +1,24 @@
-import React, { FormEvent } from "react";
+"use client";
+
+import React, { FormEvent, useState } from "react";
 import classes from "@/app/add-todo/page.module.css";
 import { Button } from "@mui/material";
 import { redirect } from "next/navigation";
-import { Todo, TodoForm } from "@/models/todo-model";
+import { Todo } from "@/models/todo-model";
 import useInput from "@/hooks/use-input";
+import todoAPIs from "@/service/todo-api";
+import { todoActions } from "@/store/todo-slice";
+import { useDispatch } from "react-redux";
 
 type Props = {
-  isLoading: boolean;
-  editItem: Todo | null;
-  onSubmit: (todo: TodoForm) => void;
+  editItem?: Todo;
+  id?: string;
 };
 
-const AddTodoForm = ({ isLoading, editItem, onSubmit }: Props) => {
+const AddTodoForm: React.FC<Props> = ({ editItem, id }) => {
+  const [isLoading, setIsLoading] = useState(false);
+  const dispatch = useDispatch();
+
   const {
     value: titleValue,
     handleInputChange: handleTitleChange,
@@ -29,13 +36,40 @@ const AddTodoForm = ({ isLoading, editItem, onSubmit }: Props) => {
     (value) => value.length > 0,
   );
 
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function addOrEditTodo(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    onSubmit({ title: titleValue, description: descriptionValue });
+    setIsLoading(true);
+    const isEdit = !!editItem;
+    if (titleValue) {
+      const todo = { title: titleValue, description: descriptionValue };
+      try {
+        if (isEdit && id) await todoAPIs.editTodo(todo, id);
+        else await todoAPIs.addTodo(todo);
+
+        dispatch(
+          todoActions.toggleSnackBar({
+            isOpen: true,
+            message: `Todo ${!!editItem ? "updated" : "added"} successfully`,
+            severity: "success",
+          }),
+        );
+      } catch (err) {
+        console.log(err);
+        setIsLoading(false);
+        dispatch(
+          todoActions.toggleSnackBar({
+            isOpen: true,
+            message: "Something went wrong...",
+            severity: "error",
+          }),
+        );
+      }
+      redirect("/todos");
+    }
   }
 
   return (
-    <form className={classes.form} onSubmit={handleSubmit}>
+    <form className={classes.form} onSubmit={addOrEditTodo}>
       <p>
         <label htmlFor="title">Title</label>
         <input

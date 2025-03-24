@@ -1,4 +1,4 @@
-import { Todo, TodoForm } from "@/models/todo-model";
+import { TodoForm } from "@/models/todo-model";
 
 const todosUrl = "http://localhost:3000/api/todos";
 

@@ -15,7 +15,6 @@ export async function GET(req: Request) {
     const db = client.db();
     const collections = db.collection("todos");
     const todos = await collections.find().toArray();
-    console.log(todos);
     await client.close();
 
     //const data = fs.readFileSync(dbPath, "utf8");

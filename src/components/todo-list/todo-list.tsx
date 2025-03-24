@@ -65,7 +65,6 @@ const TodoList: React.FC<Props> = ({ todos, validateTodoPath }) => {
 
   function handleEditTodo(item: Todo) {
     setIsLoading(true);
-    dispatch(todoActions.setEditItem(item));
     redirect(`/todos/${item.id}`);
   }
 

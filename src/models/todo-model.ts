@@ -13,8 +13,6 @@ export interface TodoForm {
 
 export interface AppState {
   isAuth: boolean;
-  items: Todo[];
-  editingItem: Todo | null;
   snackBar: SnackBarState;
 }
 
