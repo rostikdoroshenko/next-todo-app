@@ -2,46 +2,48 @@
 
 import React, { useEffect, useState } from "react";
 import todoAPIs from "@/service/todo-api";
-import { redirect } from "next/navigation";
+import { redirect, useParams } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import { AppState, Todo, TodoForm } from "@/models/todo-model";
 import { todoActions } from "@/store/todo-slice";
 import classes from "./page.module.css";
 import AddTodoForm from "@/components/add-todo-form/AddTodoForm";
 
-const TodoFormPage = () => {
+interface TodoFormProps {
+  editTodo: Todo | null;
+}
+
+const TodoFormPage: React.FC<TodoFormProps> = ({ editTodo }) => {
   const [isLoading, setIsLoading] = useState(false);
   const dispatch = useDispatch();
+  const { todoSlug } = useParams();
   const editItem = useSelector((state: AppState) => state.editingItem);
 
   useEffect(() => {
-    if (editItem) {
-      dispatch(todoActions.setEditItem(editItem));
+    if (editTodo) {
+      dispatch(todoActions.setEditItem(editTodo));
     }
     return () => {
       dispatch(todoActions.setEditItem(null));
     };
-  }, [dispatch, editItem]);
+  }, [dispatch, editTodo]);
 
   async function addOrEditTodo(todo: TodoForm) {
     setIsLoading(true);
-    const existingTodo: Todo = {
-      ...todo,
-      id: !!editItem ? editItem.id : new Date().getTime().toString(),
-    };
+    const isEdit = !!editItem;
     if (todo.title) {
-      const apiFn = !!editItem ? todoAPIs.editTodo : todoAPIs.addTodo;
+      console.log(isEdit);
       try {
-        const res = await apiFn(existingTodo);
-        if (res.ok) {
-          dispatch(
-            todoActions.toggleSnackBar({
-              isOpen: true,
-              message: `Todo ${!!editItem ? "updated" : "added"} successfully`,
-              severity: "success",
-            }),
-          );
-        }
+        if (isEdit) await todoAPIs.editTodo(todo, todoSlug as string);
+        else await todoAPIs.addTodo(todo);
+
+        dispatch(
+          todoActions.toggleSnackBar({
+            isOpen: true,
+            message: `Todo ${!!editItem ? "updated" : "added"} successfully`,
+            severity: "success",
+          }),
+        );
       } catch (err) {
         console.log(err);
         setIsLoading(false);
@@ -67,7 +69,7 @@ const TodoFormPage = () => {
       <main className={classes.main}>
         <AddTodoForm
           isLoading={isLoading}
-          editItem={editItem || null}
+          editItem={editTodo || null}
           onSubmit={(todo) => addOrEditTodo(todo)}
         />
       </main>

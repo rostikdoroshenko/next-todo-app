@@ -1,40 +1,44 @@
-import path from "path";
-import fs from "fs";
 import { NextResponse } from "next/server";
-import { Todo } from "@/models/todo-model";
+import { MongoClient, ObjectId } from "mongodb";
 
 type Params = Promise<{ id: string }>;
 
 export async function DELETE(req: Request, context: { params: Params }) {
-  const { id } = await context.params;
-  const dbPath = path.join(process.cwd(), "src", "db.json");
-
   try {
-    const data = fs.readFileSync(dbPath, "utf8");
-    const jsonData = JSON.parse(data);
-    jsonData.todos = jsonData.todos.filter((todo: Todo) => todo.id !== id);
+    const { id } = await context.params;
+    const client = await MongoClient.connect(
+      "mongodb+srv://gavayec:nmCJVE9oORMcsj9D@cluster0.oc7a0.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0",
+    );
+    const db = client.db();
+    const collections = db.collection("todos");
+    const result = await collections.findOneAndDelete({
+      _id: new ObjectId(id),
+    });
 
-    fs.writeFileSync(dbPath, JSON.stringify(jsonData, null, 2), "utf8");
-    return NextResponse.json({ id });
+    return NextResponse.json(result);
   } catch (error) {
     return NextResponse.json(error);
   }
 }
 
 export async function PUT(req: Request, context: { params: Params }) {
-  const { id } = await context.params;
-  const dbPath = path.join(process.cwd(), "src", "db.json");
-
   try {
+    const { id } = await context.params;
     const updatedEntry = await req.json();
-    const data = fs.readFileSync(dbPath, "utf8");
-    const jsonData = JSON.parse(data);
-    jsonData.todos = jsonData.todos.map((todo: Todo) =>
-      todo.id === id ? { ...updatedEntry } : todo,
+
+    const client = await MongoClient.connect(
+      "mongodb+srv://gavayec:nmCJVE9oORMcsj9D@cluster0.oc7a0.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0",
+    );
+    const db = client.db();
+    const collections = db.collection("todos");
+
+    const result = await collections.findOneAndUpdate(
+      { _id: new ObjectId(id) },
+      { $set: updatedEntry },
+      { returnDocument: "after" },
     );
 
-    fs.writeFileSync(dbPath, JSON.stringify(jsonData, null, 2), "utf8");
-    return NextResponse.json(updatedEntry);
+    return NextResponse.json(result);
   } catch (error) {
     return NextResponse.json(error);
   }

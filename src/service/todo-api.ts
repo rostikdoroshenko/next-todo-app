@@ -1,4 +1,4 @@
-import { Todo } from "@/models/todo-model";
+import { Todo, TodoForm } from "@/models/todo-model";
 
 const todosUrl = "http://localhost:3000/api/todos";
 
@@ -11,15 +11,15 @@ const todoAPIs = {
     return res.json();
   },
 
-  async addTodo(todo: Todo) {
+  async addTodo(todo: TodoForm) {
     return await fetch(todosUrl, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ ...todo }),
     });
   },
-  async editTodo(todo: Todo) {
-    return await fetch(`${todosUrl}/${todo.id}`, {
+  async editTodo(todo: TodoForm, id: string) {
+    return await fetch(`${todosUrl}/${id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ ...todo }),
