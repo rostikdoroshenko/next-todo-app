@@ -1,6 +1,6 @@
 import { TodoForm } from "@/models/todo-model";
 
-const todosUrl = "http://localhost:3000/api/todos";
+let todosUrl = `${process.env.NEXT_PUBLIC_API_URL}/api/todos`;
 
 const todoAPIs = {
   async fetchTodos(search: string = "") {
