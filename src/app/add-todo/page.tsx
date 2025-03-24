@@ -9,11 +9,13 @@ import { todoActions } from "@/store/todo-slice";
 import classes from "./page.module.css";
 import AddTodoForm from "@/components/add-todo-form/AddTodoForm";
 
-interface TodoFormProps {
+interface PageProps {
+  params?: { slug: string };
+  searchParams?: { [key: string]: string | string[] | undefined };
   editTodo: Todo | null;
 }
 
-const TodoFormPage: React.FC<TodoFormProps> = ({ editTodo }) => {
+const TodoFormPage: React.FC<PageProps> = ({ editTodo }) => {
   const [isLoading, setIsLoading] = useState(false);
   const dispatch = useDispatch();
   const { todoSlug } = useParams();
@@ -32,7 +34,6 @@ const TodoFormPage: React.FC<TodoFormProps> = ({ editTodo }) => {
     setIsLoading(true);
     const isEdit = !!editItem;
     if (todo.title) {
-      console.log(isEdit);
       try {
         if (isEdit) await todoAPIs.editTodo(todo, todoSlug as string);
         else await todoAPIs.addTodo(todo);
