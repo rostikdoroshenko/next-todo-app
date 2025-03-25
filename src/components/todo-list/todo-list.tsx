@@ -16,10 +16,9 @@ import Sorting from "@/components/sorting/sorting";
 interface Props {
   todos: Todo[];
   validateTodoPath: () => void;
-  cookie: any;
 }
 
-const TodoList: React.FC<Props> = ({ todos, validateTodoPath, cookie }) => {
+const TodoList: React.FC<Props> = ({ todos, validateTodoPath }) => {
   const dispatch = useDispatch();
   const [isLoading, setIsLoading] = useState(false);
   const [isASCSorting, setIsASCSorting] = useState(true);
@@ -42,7 +41,7 @@ const TodoList: React.FC<Props> = ({ todos, validateTodoPath, cookie }) => {
   async function handleDeleteTodo(id: string) {
     setIsLoading(true);
     try {
-      const response = await todoAPIs.deleteTodo(id, cookie);
+      const response = await todoAPIs.deleteTodo(id);
       if (response?.ok) {
         await validateTodoPath();
         dispatch(
