@@ -36,7 +36,7 @@ const AccordionItem: React.FC<Props> = ({ title, details, id }) => {
         <Button
           disabled={isLoading}
           size="small"
-          onClick={() => editTodoFn({ title, id, description: details })}
+          onClick={() => editTodoFn(id)}
         >
           Edit
         </Button>

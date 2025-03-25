@@ -5,7 +5,7 @@ export type TContext = {
   todos: Todo[];
   isLoading: boolean;
   deleteTodoFn: (id: string) => void;
-  editTodoFn: (todo: Todo) => void;
+  editTodoFn: (id: string) => void;
 };
 
 export const TodosContext = createContext<TContext>({
