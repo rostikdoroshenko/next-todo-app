@@ -15,10 +15,10 @@ const todoAPIs = {
     return res.json();
   },
 
-  async addTodo(todo: TodoForm) {
+  async addTodo(todo: TodoForm, cookie) {
     return await fetch(todosUrl, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { cookie: cookie, "Content-Type": "application/json" },
       body: JSON.stringify({ ...todo }),
     });
   },

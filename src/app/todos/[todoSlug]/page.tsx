@@ -15,9 +15,10 @@ const EditTodoPage: React.FC<Props> = async ({ params }) => {
   let todos: Todo[] = [];
   let editTodo: Todo | null = null;
   let todoSlug: string = "";
+  let cookie;
 
   try {
-    const cookie = (await headers()).get("cookie") || "";
+    cookie = (await headers()).get("cookie") || "";
     todos = await todoAPIs.fetchTodos(cookie);
     todoSlug = (await params).todoSlug;
     editTodo = todos.find((todo) => todo.id === todoSlug) || null;
@@ -33,7 +34,7 @@ const EditTodoPage: React.FC<Props> = async ({ params }) => {
         </h1>
       </header>
       <main className={classes.main}>
-        <AddTodoForm editItem={editTodo} id={todoSlug} />
+        <AddTodoForm editItem={editTodo} id={todoSlug} cookie={cookie} />
       </main>
     </>
   );
