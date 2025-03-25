@@ -13,9 +13,10 @@ import { useDispatch } from "react-redux";
 type Props = {
   editItem?: Todo;
   id?: string;
+  cookie: any;
 };
 
-const AddTodoForm: React.FC<Props> = ({ editItem, id }) => {
+const AddTodoForm: React.FC<Props> = ({ editItem, id, cookie }) => {
   const [isLoading, setIsLoading] = useState(false);
   const dispatch = useDispatch();
 
@@ -43,8 +44,8 @@ const AddTodoForm: React.FC<Props> = ({ editItem, id }) => {
     if (titleValue) {
       const todo = { title: titleValue, description: descriptionValue };
       try {
-        if (isEdit && id) await todoAPIs.editTodo(todo, id);
-        else await todoAPIs.addTodo(todo);
+        if (isEdit && id) await todoAPIs.editTodo(todo, id, cookie);
+        else await todoAPIs.addTodo(todo, cookie);
 
         dispatch(
           todoActions.toggleSnackBar({

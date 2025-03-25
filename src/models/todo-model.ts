@@ -4,6 +4,7 @@ export interface Todo {
   title: string;
   description: string;
   id: string;
+  userId: string;
 }
 
 export interface TodoForm {

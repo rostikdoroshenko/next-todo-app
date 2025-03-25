@@ -6,6 +6,7 @@ import Loading from "@/app/todos/loading";
 import TodoList from "@/components/todo-list/todo-list";
 import { revalidatePath } from "next/cache";
 import todoAPIs from "@/service/todo-api";
+import { headers } from "next/headers";
 
 interface Props {
   searchParams: Promise<{
@@ -13,12 +14,12 @@ interface Props {
   }>;
 }
 
-const Todos: React.FC<Props> = async ({ searchParams }) => {
+const Todos: React.FC<Props> = async () => {
   let todos: Todo[] = [];
 
   try {
-    const search = (await searchParams).search;
-    todos = await todoAPIs.fetchTodos(search);
+    const cookie = (await headers()).get("cookie") || "";
+    todos = await todoAPIs.fetchTodos(cookie);
   } catch (e) {
     console.log(e);
   }
