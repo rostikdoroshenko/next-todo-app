@@ -3,13 +3,12 @@
 import { todoActions } from "@/store/todo-slice";
 import { Todo } from "@/models/todo-model";
 import { redirect } from "next/navigation";
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import classes from "@/components/todo-list/todo-list.module.css";
 import { useDispatch } from "react-redux";
 import SimpleSnackbar from "@/components/snackbar/Snackbar";
 import todoAPIs from "@/service/todo-api";
 import AccordionItem from "@/components/accordion/Accordion";
-import { useRouter } from "next/navigation";
 import { TContext, TodosContext } from "@/store/todos-context";
 import SearchInput from "@/components/search-input/search-input";
 import Sorting from "@/components/sorting/sorting";
@@ -19,21 +18,25 @@ interface Props {
   validateTodoPath: () => void;
 }
 
-let currentSearchValue = "";
-
 const TodoList: React.FC<Props> = ({ todos, validateTodoPath }) => {
   const dispatch = useDispatch();
   const [isLoading, setIsLoading] = useState(false);
   const [isASCSorting, setIsASCSorting] = useState(true);
-  const router = useRouter();
+  const [searchValue, setSearchValue] = useState("");
 
   const filteredTodos = useMemo(() => {
-    return todos.sort((a, b) =>
-      isASCSorting
-        ? a.title.localeCompare(b.title)
-        : b.title.localeCompare(a.title),
-    );
-  }, [isASCSorting, todos]);
+    return todos
+      .filter(
+        (todo: Todo) =>
+          todo.title.toLowerCase().includes(searchValue.toLowerCase()) ||
+          todo.description.toLowerCase().includes(searchValue.toLowerCase()),
+      )
+      .sort((a, b) =>
+        isASCSorting
+          ? a.title.localeCompare(b.title)
+          : b.title.localeCompare(a.title),
+      );
+  }, [isASCSorting, searchValue, todos]);
 
   async function handleDeleteTodo(id: string) {
     setIsLoading(true);
@@ -68,16 +71,6 @@ const TodoList: React.FC<Props> = ({ todos, validateTodoPath }) => {
     redirect(`/todos/${item.id}`);
   }
 
-  const handleInputChange = useCallback(
-    function handleInputChange(searchValue: string) {
-      if (searchValue !== currentSearchValue) {
-        currentSearchValue = searchValue;
-        router.push(`/todos?search=${searchValue}`);
-      }
-    },
-    [router],
-  );
-
   function handleSorting() {
     setIsASCSorting((asc) => !asc);
   }
@@ -92,7 +85,7 @@ const TodoList: React.FC<Props> = ({ todos, validateTodoPath }) => {
   return (
     <TodosContext value={ctx}>
       <div>
-        <SearchInput onChange={(value) => handleInputChange(value)} />
+        <SearchInput onChange={(value) => setSearchValue(value)} />
         <Sorting sort={isASCSorting} onSort={handleSorting} />
       </div>
       <div className={classes.list}>

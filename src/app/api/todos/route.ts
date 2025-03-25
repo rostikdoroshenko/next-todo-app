@@ -1,29 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import path from "path";
-import { MongoClient } from "mongodb";
+import collections from "@/lib/colllections";
 
 export async function GET(req: Request) {
-  const { searchParams } = new URL(req.url);
-  const query = searchParams.get("search") ?? "";
-
-  const dbPath = path.join(process.cwd(), "src", "db.json");
-
   try {
-    const client = await MongoClient.connect(
-      "mongodb+srv://gavayec:nmCJVE9oORMcsj9D@cluster0.oc7a0.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0",
-    );
-    const db = client.db();
-    const collections = db.collection("todos");
-    const todos = await collections.find().toArray();
-    await client.close();
-
-    //const data = fs.readFileSync(dbPath, "utf8");
-    //const jsonData = JSON.parse(data);
-    // const todos = jsonData.todos.filter(
-    //   (todo: Todo) =>
-    //     todo.title.toLowerCase().includes(query.toLowerCase()) ||
-    //     todo.description.toLowerCase().includes(query.toLowerCase()),
-    // );
+    const todoCollections = await collections();
+    const todos = await todoCollections.find().toArray();
 
     const mappedTodos = todos.map((todo) => ({
       title: todo.title,
@@ -39,14 +20,9 @@ export async function GET(req: Request) {
 
 export async function POST(req: NextRequest) {
   try {
-    const client = await MongoClient.connect(
-      "mongodb+srv://gavayec:nmCJVE9oORMcsj9D@cluster0.oc7a0.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0",
-    );
-    const db = client.db();
-    const collections = db.collection("todos");
+    const todoCollections = await collections();
     const newEntry = await req.json();
-    const res = await collections.insertOne(newEntry);
-    await client.close();
+    const res = await todoCollections.insertOne(newEntry);
     return NextResponse.json(res);
   } catch (error) {
     return NextResponse.json(error);
