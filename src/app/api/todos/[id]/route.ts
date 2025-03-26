@@ -9,7 +9,6 @@ export async function DELETE(req: Request, context: { params: Params }) {
   let userId: string | false = "";
   try {
     userId = await getUserId();
-    console.log(userId);
     if (userId) {
       const { id } = await context.params;
       const todoCollections = await collections();
