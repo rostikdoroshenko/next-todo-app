@@ -15,17 +15,17 @@ const todoAPIs = {
     return res.json();
   },
 
-  async addTodo(todo: TodoForm) {
+  async addTodo(todo: TodoForm, cookie) {
     return await fetch(todosUrl, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { cookie: cookie, "Content-Type": "application/json" },
       body: JSON.stringify({ ...todo }),
     });
   },
-  async editTodo(todo: TodoForm, id: string) {
+  async editTodo(todo: TodoForm, cookie, id: string) {
     return await fetch(`${todosUrl}/${id}`, {
       method: "PUT",
-      headers: { "Content-Type": "application/json" },
+      headers: { cookie: cookie, "Content-Type": "application/json" },
       body: JSON.stringify({ ...todo }),
     });
   },

@@ -1,23 +1,27 @@
 "use client";
 
-import React, { FormEvent, useState } from "react";
+import React, { useActionState } from "react";
 import classes from "@/app/add-todo/page.module.css";
 import { Button } from "@mui/material";
-import { redirect } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { Todo } from "@/models/todo-model";
 import useInput from "@/hooks/use-input";
-import todoAPIs from "@/service/todo-api";
 import { todoActions } from "@/store/todo-slice";
 import { useDispatch } from "react-redux";
+import { handleForm } from "@/lib/actions";
 
 type Props = {
   editItem?: Todo;
   id?: string;
+  cookie: any;
 };
 
-const AddTodoForm: React.FC<Props> = ({ editItem, id }) => {
-  const [isLoading, setIsLoading] = useState(false);
+const AddTodoForm: React.FC<Props> = ({ editItem, id, cookie }) => {
   const dispatch = useDispatch();
+  const router = useRouter();
+  const [formState, formAction, isPending] = useActionState(addOrEditTodo, {
+    message: null,
+  });
 
   const {
     value: titleValue,
@@ -36,40 +40,56 @@ const AddTodoForm: React.FC<Props> = ({ editItem, id }) => {
     (value) => value.length > 0,
   );
 
-  async function addOrEditTodo(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setIsLoading(true);
-    const isEdit = !!editItem;
-    if (titleValue) {
-      const todo = { title: titleValue, description: descriptionValue };
-      try {
-        if (isEdit && id) await todoAPIs.editTodo(todo, id);
-        else await todoAPIs.addTodo(todo);
+  const isDisabled =
+    titleHasError ||
+    descriptionHasError ||
+    isPending ||
+    (editItem &&
+      editItem.title === titleValue &&
+      editItem.description === descriptionValue);
 
-        dispatch(
-          todoActions.toggleSnackBar({
-            isOpen: true,
-            message: `Todo ${!!editItem ? "updated" : "added"} successfully`,
-            severity: "success",
-          }),
-        );
-      } catch (err) {
-        console.log(err);
-        setIsLoading(false);
-        dispatch(
-          todoActions.toggleSnackBar({
-            isOpen: true,
-            message: "Something went wrong...",
-            severity: "error",
-          }),
-        );
-      }
-      redirect("/todos");
+  async function addOrEditTodo(
+    prevState: { message: string | null },
+    formData: FormData,
+  ) {
+    const isEdit = !!editItem;
+
+    const todo = {
+      title: formData.get("title") as string,
+      description: formData.get("description") as string,
+    };
+
+    if (!todo.title || todo.title.trim().length < 3) {
+      return { message: "invalid title" };
+    }
+
+    if (!todo.description || !todo.description.trim()) {
+      return { message: "invalid description" };
+    }
+
+    try {
+      await handleForm(todo, cookie, isEdit && id ? id : null);
+
+      dispatch(
+        todoActions.toggleSnackBar({
+          isOpen: true,
+          message: `Todo ${!!editItem ? "updated" : "added"} successfully`,
+          severity: "success",
+        }),
+      );
+    } catch (err) {
+      dispatch(
+        todoActions.toggleSnackBar({
+          isOpen: true,
+          message: "Something went wrong...",
+          severity: "error",
+        }),
+      );
     }
   }
 
   return (
-    <form className={classes.form} onSubmit={addOrEditTodo}>
+    <form className={classes.form} action={formAction}>
       <p>
         <label htmlFor="title">Title</label>
         <input
@@ -104,24 +124,20 @@ const AddTodoForm: React.FC<Props> = ({ editItem, id }) => {
       <div className="error-input">
         {descriptionHasError && <p>Please add some description</p>}
       </div>
-      <p className={classes.actions}>
+      <div className={classes.actions}>
         <Button
-          disabled={isLoading}
+          disabled={isPending}
           variant="contained"
           type="button"
-          onClick={() => redirect("/todos")}
+          onClick={() => router.push("/todos")}
         >
           Cancel
         </Button>
-        <Button
-          variant="contained"
-          type="submit"
-          data-testid="submit"
-          disabled={titleHasError || descriptionHasError || isLoading}
-        >
-          {!!editItem ? "Update" : "Add Todo"}
+        {formState.message && <span>{formState.message}</span>}
+        <Button type="submit" data-testid="submit" disabled={isDisabled}>
+          {isPending ? "Submitting..." : !!editItem ? "Update" : "Add Todo"}
         </Button>
-      </p>
+      </div>
     </form>
   );
 };

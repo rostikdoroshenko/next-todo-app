@@ -15,7 +15,7 @@ import Sorting from "@/components/sorting/sorting";
 
 interface Props {
   todos: Todo[];
-  validateTodoPath: () => void;
+  validateTodoPath: () => Promise<void>;
 }
 
 const TodoList: React.FC<Props> = ({ todos, validateTodoPath }) => {
@@ -51,7 +51,9 @@ const TodoList: React.FC<Props> = ({ todos, validateTodoPath }) => {
             severity: "success",
           }),
         );
-        setIsLoading(false);
+        setTimeout(() => {
+          setIsLoading(false);
+        }, 2000);
       }
     } catch (e) {
       console.log(e);
@@ -78,6 +80,7 @@ const TodoList: React.FC<Props> = ({ todos, validateTodoPath }) => {
   const ctx: TContext = {
     todos: filteredTodos,
     isLoading,
+    setIsLoading,
     deleteTodoFn: handleDeleteTodo,
     editTodoFn: handleEditTodo,
   };
