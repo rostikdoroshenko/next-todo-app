@@ -16,10 +16,31 @@ export async function DELETE(req: Request, context: { params: Params }) {
         _id: new ObjectId(id),
       });
 
-      return NextResponse.json(result);
+      if (!result) {
+        return NextResponse.json(
+          { message: "Todo not found", todo: result },
+          { status: 404 },
+        );
+      }
+
+      return NextResponse.json(
+        { message: "Todo deleted", todo: result },
+        { status: 200 },
+      );
     }
+
+    return NextResponse.json(
+      { message: "User not authorized" },
+      { status: 401 },
+    );
   } catch (error) {
-    return NextResponse.json(error);
+    return NextResponse.json(
+      {
+        message: "Server error",
+        error: error instanceof Error ? error.message : String(error),
+      },
+      { status: 500 },
+    );
   }
 }
 
@@ -38,9 +59,29 @@ export async function PUT(req: Request, context: { params: Params }) {
         { returnDocument: "after" },
       );
 
-      return NextResponse.json(result);
+      if (!result) {
+        return NextResponse.json(
+          { message: "Todo not found", todo: result },
+          { status: 404 },
+        );
+      }
+
+      return NextResponse.json(
+        { message: "Todo updated", todo: result },
+        { status: 200 },
+      );
     }
+    return NextResponse.json(
+      { message: "User not authorized" },
+      { status: 401 },
+    );
   } catch (error) {
-    return NextResponse.json(error);
+    return NextResponse.json(
+      {
+        message: "Server error",
+        error: error instanceof Error ? error.message : String(error),
+      },
+      { status: 500 },
+    );
   }
 }

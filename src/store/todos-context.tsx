@@ -13,7 +13,7 @@ export const TodosContext = createContext<TContext>({
   todos: [],
   isLoading: false,
   setIsLoading: () => {
-    throw new Error("setIsModalOpen not implemented");
+    throw new Error("setIsLoading not implemented");
   },
   deleteTodoFn: () => {},
   editTodoFn: () => {},

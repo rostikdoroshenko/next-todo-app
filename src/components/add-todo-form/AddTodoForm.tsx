@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useActionState } from "react";
+import React, { useActionState, useEffect } from "react";
 import classes from "@/app/add-todo/page.module.css";
 import { Button } from "@mui/material";
 import { useRouter } from "next/navigation";
@@ -8,20 +8,28 @@ import { Todo } from "@/models/todo-model";
 import useInput from "@/hooks/use-input";
 import { todoActions } from "@/store/todo-slice";
 import { useDispatch } from "react-redux";
-import { handleForm } from "@/lib/actions";
+import FormSubmit from "@/components/add-todo-form/form-submit";
+import { ActionState, formHandleAction } from "@/lib/actions";
+import SimpleSnackbar from "@/components/snackbar/Snackbar";
 
 type Props = {
   editItem?: Todo;
   id?: string;
-  cookie: any;
 };
 
-const AddTodoForm: React.FC<Props> = ({ editItem, id, cookie }) => {
+const AddTodoForm: React.FC<Props> = ({ editItem, id }) => {
   const dispatch = useDispatch();
   const router = useRouter();
-  const [formState, formAction, isPending] = useActionState(addOrEditTodo, {
-    message: null,
-  });
+  const [formState, formAction, isPending] = useActionState(
+    async (prevState: ActionState, formData: FormData) => {
+      return await formHandleAction(prevState, formData);
+    },
+    {
+      message: null,
+      isEdit: !!editItem,
+      id,
+    },
+  );
 
   const {
     value: titleValue,
@@ -48,36 +56,17 @@ const AddTodoForm: React.FC<Props> = ({ editItem, id, cookie }) => {
       editItem.title === titleValue &&
       editItem.description === descriptionValue);
 
-  async function addOrEditTodo(
-    prevState: { message: string | null },
-    formData: FormData,
-  ) {
-    const isEdit = !!editItem;
-
-    const todo = {
-      title: formData.get("title") as string,
-      description: formData.get("description") as string,
-    };
-
-    if (!todo.title || todo.title.trim().length < 3) {
-      return { message: "invalid title" };
-    }
-
-    if (!todo.description || !todo.description.trim()) {
-      return { message: "invalid description" };
-    }
-
-    try {
-      await handleForm(todo, cookie, isEdit && id ? id : null);
-
+  useEffect(() => {
+    if (formState.message === "success") {
       dispatch(
         todoActions.toggleSnackBar({
           isOpen: true,
-          message: `Todo ${!!editItem ? "updated" : "added"} successfully`,
+          message: `Todo ${(formState as ActionState)?.isEdit ? "updated" : "added"} successfully`,
           severity: "success",
         }),
       );
-    } catch (err) {
+      router.push("/todos");
+    } else if (formState.message === "error") {
       dispatch(
         todoActions.toggleSnackBar({
           isOpen: true,
@@ -86,59 +75,63 @@ const AddTodoForm: React.FC<Props> = ({ editItem, id, cookie }) => {
         }),
       );
     }
-  }
+  }, [dispatch, formState, router]);
 
   return (
-    <form className={classes.form} action={formAction}>
-      <p>
-        <label htmlFor="title">Title</label>
-        <input
-          type="text"
-          id="title"
-          data-testid="title"
-          placeholder="Add title"
-          name="title"
-          required
-          onBlur={handleTitleBlur}
-          onChange={(event) => handleTitleChange(event.target.value)}
-          value={titleValue}
-        />
-      </p>
-      <div className="error-input">
-        {titleHasError && <p>Please enter at least 3 symbols</p>}
-      </div>
-      <p>
-        <label htmlFor="description">Description</label>
-        <textarea
-          id="description"
-          name="description"
-          placeholder="Add description"
-          data-testid="description"
-          onBlur={handleDescriptionBlur}
-          onChange={(event) => handleDescriptionChange(event.target.value)}
-          value={descriptionValue}
-          rows={5}
-          required
-        ></textarea>
-      </p>
-      <div className="error-input">
-        {descriptionHasError && <p>Please add some description</p>}
-      </div>
-      <div className={classes.actions}>
-        <Button
-          disabled={isPending}
-          variant="contained"
-          type="button"
-          onClick={() => router.push("/todos")}
-        >
-          Cancel
-        </Button>
-        {formState.message && <span>{formState.message}</span>}
-        <Button type="submit" data-testid="submit" disabled={isDisabled}>
-          {isPending ? "Submitting..." : !!editItem ? "Update" : "Add Todo"}
-        </Button>
-      </div>
-    </form>
+    <>
+      <form className={classes.form} action={formAction}>
+        <p>
+          <label htmlFor="title">Title</label>
+          <input
+            type="text"
+            id="title"
+            data-testid="title"
+            placeholder="Add title"
+            name="title"
+            required
+            onBlur={handleTitleBlur}
+            onChange={(event) => handleTitleChange(event.target.value)}
+            value={titleValue}
+          />
+        </p>
+        <div className="error-input">
+          {titleHasError && <p>Please enter at least 3 symbols</p>}
+        </div>
+        <p>
+          <label htmlFor="description">Description</label>
+          <textarea
+            id="description"
+            name="description"
+            placeholder="Add description"
+            data-testid="description"
+            onBlur={handleDescriptionBlur}
+            onChange={(event) => handleDescriptionChange(event.target.value)}
+            value={descriptionValue}
+            rows={5}
+            required
+          ></textarea>
+        </p>
+        <div className="error-input">
+          {descriptionHasError && <p>Please add some description</p>}
+        </div>
+        <div className={classes.actions}>
+          <Button
+            disabled={isPending}
+            variant="contained"
+            type="button"
+            onClick={() => router.push("/todos")}
+          >
+            Cancel
+          </Button>
+          <FormSubmit
+            text={!!editItem ? "Update" : "Add Todo"}
+            pending={isPending}
+            disabled={isDisabled}
+          />
+        </div>
+      </form>
+      <SimpleSnackbar />
+    </>
   );
 };
 

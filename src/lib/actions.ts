@@ -1,13 +1,45 @@
 "use server";
-
 import todoAPIs from "@/service/todo-api";
-import { TodoForm } from "@/models/todo-model";
-import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
+import { headers } from "next/headers";
 
-export async function handleForm(todo: TodoForm, cookie, id?: string | null) {
-  if (id) await todoAPIs.editTodo(todo, cookie, id);
-  else await todoAPIs.addTodo(todo, cookie);
-  revalidatePath("/todos");
-  redirect("/todos");
+export type ActionState = {
+  message: string | null;
+  isEdit: boolean;
+  id?: string;
+};
+
+export async function formHandleAction(
+  prevState: ActionState,
+  formData: FormData,
+) {
+  const todo = {
+    title: formData.get("title") as string,
+    description: formData.get("description") as string,
+  };
+
+  if (!todo.title || todo.title.trim().length < 3) {
+    return { message: "invalid title" };
+  }
+
+  if (!todo.description || !todo.description.trim()) {
+    return { message: "invalid description" };
+  }
+
+  try {
+    const cookie = (await headers()).get("cookie") || "";
+    if (prevState.id) {
+      await todoAPIs.editTodo(todo, cookie, prevState.id);
+    } else {
+      await todoAPIs.addTodo(todo, cookie);
+    }
+    return {
+      ...prevState,
+      message: "success",
+    };
+  } catch (e) {
+    return {
+      ...prevState,
+      message: "error",
+    };
+  }
 }

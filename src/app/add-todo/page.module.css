@@ -1,6 +1,6 @@
 .header {
   gap: 3rem;
-  margin: 3rem auto 5rem auto;
+  margin: 2rem auto 4rem auto;
   width: 90%;
   max-width: 75rem;
   color: #ddd6cb;
@@ -18,7 +18,16 @@
   -webkit-text-fill-color: transparent;
 }
 
+.center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
 .main {
+  display: flex;
+  justify-content: center;
   width: 90%;
   max-width: 75rem;
   margin: 3rem auto;
@@ -26,6 +35,7 @@
 }
 
 .form {
+  width: 100%;
   max-width: 50rem;
 }
 

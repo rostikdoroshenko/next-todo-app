@@ -7,6 +7,7 @@ import { revalidatePath } from "next/cache";
 import todoAPIs from "@/service/todo-api";
 import { headers } from "next/headers";
 import Loader from "@/components/loader/loader";
+import Error from "@/components/error/error";
 
 interface Props {
   searchParams: Promise<{
@@ -14,19 +15,33 @@ interface Props {
   }>;
 }
 
+export const generateMetadata = async () => {
+  const cookie = (await headers()).get("cookie") || "";
+  const todos = await todoAPIs.fetchTodos(cookie);
+  return {
+    title: `Received ${todos.length} todos`,
+  };
+};
+
 const Todos = async () => {
   let todos: Todo[] = [];
+  let error = null;
 
   try {
     const cookie = (await headers()).get("cookie") || "";
     todos = await todoAPIs.fetchTodos(cookie);
   } catch (e) {
     console.log(e);
+    error = e;
   }
 
   async function validatePath() {
     "use server";
     revalidatePath("/todos");
+  }
+
+  if (error) {
+    return <Error error={error} />;
   }
 
   return (
@@ -35,7 +50,7 @@ const Todos = async () => {
         {todos.length} Todos
       </h2>
       <div className={classes.cards}>
-        <TodoList todos={todos} validateTodoPath={validatePath} />
+        <TodoList initialTodos={todos} validateTodoPath={validatePath} />
       </div>
     </>
   );

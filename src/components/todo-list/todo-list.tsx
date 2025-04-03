@@ -14,12 +14,13 @@ import SearchInput from "@/components/search-input/search-input";
 import Sorting from "@/components/sorting/sorting";
 
 interface Props {
-  todos: Todo[];
+  initialTodos: Todo[];
   validateTodoPath: () => Promise<void>;
 }
 
-const TodoList: React.FC<Props> = ({ todos, validateTodoPath }) => {
+const TodoList: React.FC<Props> = ({ initialTodos, validateTodoPath }) => {
   const dispatch = useDispatch();
+  const [todos, setTodos] = useState(initialTodos);
   const [isLoading, setIsLoading] = useState(false);
   const [isASCSorting, setIsASCSorting] = useState(true);
   const [searchValue, setSearchValue] = useState("");
@@ -36,27 +37,24 @@ const TodoList: React.FC<Props> = ({ todos, validateTodoPath }) => {
           ? a.title.localeCompare(b.title)
           : b.title.localeCompare(a.title),
       );
-  }, [isASCSorting, searchValue, todos]);
+  }, [todos, searchValue, isASCSorting]);
 
   async function handleDeleteTodo(id: string) {
+    const prevTodos = [...todos];
+    setTodos((prevTodos) => prevTodos.filter((todo) => todo.id !== id));
     setIsLoading(true);
+
     try {
-      const response = await todoAPIs.deleteTodo(id);
-      if (response?.ok) {
-        await validateTodoPath();
-        dispatch(
-          todoActions.toggleSnackBar({
-            isOpen: true,
-            message: "Todo removed successfully",
-            severity: "success",
-          }),
-        );
-        setTimeout(() => {
-          setIsLoading(false);
-        }, 2000);
-      }
+      await todoAPIs.deleteTodo(id);
+      dispatch(
+        todoActions.toggleSnackBar({
+          isOpen: true,
+          message: "Todo removed successfully",
+          severity: "success",
+        }),
+      );
     } catch (e) {
-      console.log(e);
+      setTodos(prevTodos);
       dispatch(
         todoActions.toggleSnackBar({
           isOpen: true,
@@ -64,6 +62,8 @@ const TodoList: React.FC<Props> = ({ todos, validateTodoPath }) => {
           severity: "error",
         }),
       );
+    } finally {
+      await validateTodoPath();
       setIsLoading(false);
     }
   }
