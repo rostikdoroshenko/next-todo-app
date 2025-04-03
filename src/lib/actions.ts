@@ -1,6 +1,7 @@
 "use server";
 import todoAPIs from "@/service/todo-api";
 import { headers } from "next/headers";
+import { revalidatePath } from "next/cache";
 
 export type ActionState = {
   message: string | null;
@@ -41,5 +42,7 @@ export async function formHandleAction(
       ...prevState,
       message: "error",
     };
+  } finally {
+    revalidatePath("/todos");
   }
 }
