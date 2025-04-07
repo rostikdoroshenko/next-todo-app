@@ -58,6 +58,7 @@ const AddTodoForm: React.FC<Props> = ({ editItem, id }) => {
 
   useEffect(() => {
     if (formState.message === "success") {
+      router.push("/todos");
       dispatch(
         todoActions.toggleSnackBar({
           isOpen: true,
@@ -65,7 +66,6 @@ const AddTodoForm: React.FC<Props> = ({ editItem, id }) => {
           severity: "success",
         }),
       );
-      router.push("/todos");
     } else if (formState.message === "error") {
       dispatch(
         todoActions.toggleSnackBar({

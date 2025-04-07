@@ -15,13 +15,13 @@ interface Props {
   }>;
 }
 
-export const generateMetadata = async () => {
-  const cookie = (await headers()).get("cookie") || "";
-  const todos = await todoAPIs.fetchTodos(cookie);
-  return {
-    title: `Received ${todos.length} todos`,
-  };
-};
+// export const generateMetadata = async () => {
+//   const cookie = (await headers()).get("cookie") || "";
+//   const todos = await todoAPIs.fetchTodos(cookie);
+//   return {
+//     title: `Received ${todos.length} todos`,
+//   };
+// };
 
 const Todos = async () => {
   let todos: Todo[] = [];
